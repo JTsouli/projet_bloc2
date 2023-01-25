@@ -10,7 +10,8 @@ namespace livrable0
     {
         static void Main(string[] args)
         {
-            ///connection git///
+            Console.WriteLine("HELLO WORLD");
+            Console.ReadKey();
         }
     }
 }
