@@ -10,6 +10,7 @@ namespace livrable0
     {
         static void Main(string[] args)
         {
+            ///commande hello world///
             Console.WriteLine("HELLO WORLD");
             Console.ReadKey();
         }
