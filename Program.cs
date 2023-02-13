@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace BackupSoftware
@@ -27,6 +28,7 @@ namespace BackupSoftware
                 Console.WriteLine("3. Run All Backup Jobs");
                 Console.WriteLine("4. Show All Backup Jobs");
                 Console.WriteLine("5. Exit");
+                Console.WriteLine("6. Change language");
                 Console.Write("Enter your choice: ");
 
                 int choice = int.Parse(Console.ReadLine());
@@ -126,6 +128,105 @@ namespace BackupSoftware
 
                     case 5:
                         Environment.Exit(0);
+
+                    case 6:
+                        filePath = @"D:\Documents\CESI A3 2022-2023\Projet Programmation SI\Translate\fr\menu.txt";
+                        StreamReader readerfr = new StreamReader(filePath);
+                        fileContent = readerfr.ReadToEnd();
+                        Console.WriteLine(fileContent);
+                        string choix_eng = Console.ReadLine();
+                        switch (choix_eng)
+                        {
+                            case 1:
+                                if (jobCount == 5)
+                                {
+                                    Console.WriteLine("Tu as atteins le nombre maximum de sauvegarde !");
+                                    break;
+                                }
+                                Console.WriteLine(File.ReadLines(@"D:\Documents\CESI A3 2022-2023\Projet Programmation SI\Translate\fr\sauvegarde.txt").Skip(0).Take(1).First());
+                                ///definition de tout nos parametres pour la save
+                                BackupJob jobfr = new BackupJob();
+                                Console.Write(File.ReadLines(@"D:\Documents\CESI A3 2022-2023\Projet Programmation SI\Translate\fr\sauvegarde.txt").Skip(1).Take(1).First());
+                                jobfr.Name = Console.ReadLine();
+                                Console.Write(File.ReadLines(@"D:\Documents\CESI A3 2022-2023\Projet Programmation SI\Translate\fr\sauvegarde.txt").Skip(2).Take(1).First());
+                                jobfr.SourceDirectory = Console.ReadLine();
+                                Console.Write(File.ReadLines(@"D:\Documents\CESI A3 2022-2023\Projet Programmation SI\Translate\fr\sauvegarde.txt").Skip(3).Take(1).First());
+                                jobfr.TargetDirectory = Console.ReadLine();
+                                Console.Write(File.ReadLines(@"D:\Documents\CESI A3 2022-2023\Projet Programmation SI\Translate\fr\sauvegarde.txt").Skip(4).Take(1).First());
+                                jobfr.Type = Console.ReadLine();
+                                jobs[jobCount++] = jobfr;
+                                Console.WriteLine("La sauvegarde a été crée");
+                                jobfr.size = GetDirectorySize(jobfr.SourceDirectory);
+                                jobfr.state = "not active";
+
+                                jobfr.fileCount = Directory.GetFiles(jobfr.SourceDirectory).Length;
+                                jobfr.filetodo = (Directory.GetFiles(jobfr.SourceDirectory).Length) - (Directory.GetFiles(job.TargetDirectory).Length);
+                                jobfr.sizetodo = GetDirectorySize(jobfr.SourceDirectory) - GetDirectorySize(job.TargetDirectory);
+
+                                ///Création de nos log file et state file
+                                string logFilefr = GetLogFilePath(extension);
+                                string stateFilefr = GetStateFilePath(extension);
+                                BackupLOG_STATE(logFilefr, stateFilefr, job);
+                                break;
+
+                            case 2:
+                                ///selection de la save pour l'executer par un nom
+                                Console.Write("Entrez le nom du travail de sauvegarde ");
+                                string jobfrName = Console.ReadLine();
+                                BackupJob selectedJobfr = null;
+                                for (int i = 0; i < jobCount; i++)
+                                {
+                                    if (jobs[i].Name == jobfrName)
+                                    {
+                                        selectedJobfr = jobs[i];
+                                        break;
+                                    }
+                                }
+
+                                if (selectedJobfr == null)
+                                {
+                                    Console.WriteLine("Travail non trouvé");
+                                    break;
+                                }
+
+                                Console.WriteLine("Backup en cours" + selectedJobfr.Name);
+                                RunBackupJob(selectedJobfr);
+                                string logFile1fr = GetLogFilePath(extension);
+                                string stateFile1fr = GetStateFilePath(extension);
+                                BackupLOG_STATE(logFile1fr, stateFile1fr, selectedJobfr);
+
+                                break;
+
+                            case 3:
+                                ///execution de toute les saves
+                                Console.WriteLine("Execution de toutes les sauvegardes.");
+                                for (int i = 0; i < jobCount; i++)
+                                {
+                                    RunBackupJob(jobs[i]);
+                                    string logFile2 = GetLogFilePath(extension);
+                                    string stateFile2 = GetStateFilePath(extension);
+                                    BackupLOG_STATE(logFile2, stateFile2, jobs[i]);
+
+
+                                }
+
+                                break;
+
+                            case 4:
+                                ///affichage de toute les saves
+                                Console.WriteLine("Liste des travaux programmés");
+                                for (int i = 0; i < jobCount; i++)
+                                {
+                                    Console.WriteLine("Nom " + jobs[i].Name);
+                                    Console.WriteLine("Dossier source: " + jobs[i].SourceDirectory);
+                                    Console.WriteLine("Dossier cible: " + jobs[i].TargetDirectory);
+                                    Console.WriteLine("Type: " + jobs[i].Type);
+                                    Console.WriteLine("Etat: " + jobs[i].state);
+                                    Console.WriteLine();
+                                }
+                                break;
+
+                        }
                         break;
                     default:
                         Console.WriteLine("Invalid choice.");
