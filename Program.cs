@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -27,8 +27,8 @@ namespace BackupSoftware
                 Console.WriteLine("2. Run Backup Job");
                 Console.WriteLine("3. Run All Backup Jobs");
                 Console.WriteLine("4. Show All Backup Jobs");
-                Console.WriteLine("5. Exit");
-                Console.WriteLine("6. Change language");
+                Console.WriteLine("5. Change language");
+                Console.WriteLine("6. Exit");
                 Console.Write("Enter your choice: ");
 
                 int choice = int.Parse(Console.ReadLine());
@@ -124,12 +124,9 @@ namespace BackupSoftware
                             Console.WriteLine("state: " + jobs[i].state);
                             Console.WriteLine();
                         }
-                        break;
+                        break;                  
 
                     case 5:
-                        Environment.Exit(0);
-
-                    case 6:
                         filePath = @"D:\Documents\CESI A3 2022-2023\Projet Programmation SI\Translate\fr\menu.txt";
                         StreamReader readerfr = new StreamReader(filePath);
                         fileContent = readerfr.ReadToEnd();
@@ -225,8 +222,17 @@ namespace BackupSoftware
                                     Console.WriteLine();
                                 }
                                 break;
-
+                            case 5:
+                                break;
+                            default:
+                                Console.WriteLine("Choix invalide.");
+                                break;
                         }
+                        break;
+                    
+
+                    case 6:
+                        Environment.Exit(0);
                         break;
                     default:
                         Console.WriteLine("Invalid choice.");
