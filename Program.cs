@@ -1,293 +1,214 @@
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using Newtonsoft.Json;
+    using System;
+    using System.Diagnostics;
+    using System.IO;
+    using System.Linq;
+    using Newtonsoft.Json;
 
-namespace BackupSoftware
-{
-    class Program
+    namespace BackupSoftware
     {
-
-        public static void Main(string[] args)
+        class Program
         {
-            BackupJob[] jobs = new BackupJob[5];
-            int jobCount = 0;
 
-
-            while (true)
+            public static void Main(string[] args)
             {
-                ///choix du type JSON ou XML
-                Console.WriteLine("What type you want for the log and state file (xml or json)?");
-                string extension = Console.ReadLine();
+                string langue = "EN";
+                BackupJob[] jobs = new BackupJob[5];
+                int jobCount = 0;
+                
+                
 
-
-                ///Choix Fonctionnalitées
-                Console.WriteLine("1. Create Backup Job");
-                Console.WriteLine("2. Run Backup Job");
-                Console.WriteLine("3. Run All Backup Jobs");
-                Console.WriteLine("4. Show All Backup Jobs");
-                Console.WriteLine("5. Change language");
-                Console.WriteLine("6. Exit");
-                Console.Write("Enter your choice: ");
-
-                int choice = int.Parse(Console.ReadLine());
-
-
-
-                switch (choice)
+                while (true)
                 {
-                    ///Maximum de 5 save
-                    case 1:
-                        if (jobCount == 5)
-                        {
-                            Console.WriteLine("Maximum number of jobs reached.");
-                            break;
-                        }
+                 ///On définit le type JSON par défault pour les fichiers LOG et State
+                 string extension = "json";
+
+                ///Affichage du menu.txt pour le Choix Fonctionnalitées
+                string filePath = @"menu" + langue + ".txt";
+                StreamReader readerfr = new StreamReader(filePath);
+                string fileContent = readerfr.ReadToEnd();
+                Console.WriteLine(fileContent);
 
 
-                        ///definition de tout nos parametres pour la save
-                        BackupJob job = new BackupJob();
-                        Console.Write("Enter job name: ");
-                        job.Name = Console.ReadLine();
-                        Console.Write("Enter source directory: ");
-                        job.SourceDirectory = Console.ReadLine();
-                        Console.Write("Enter target directory: ");
-                        job.TargetDirectory = Console.ReadLine();
-                        Console.Write("Enter backup type (full/differential): ");
-                        job.Type = Console.ReadLine();
-                        jobs[jobCount++] = job;
-                        Console.WriteLine("Backup job created successfully.");
-                        job.size = GetDirectorySize(job.SourceDirectory);
-                        job.state = "not active";
-
-                        job.fileCount = Directory.GetFiles(job.SourceDirectory).Length;
-                        job.filetodo = (Directory.GetFiles(job.SourceDirectory).Length) - (Directory.GetFiles(job.TargetDirectory).Length);
-                        job.sizetodo = GetDirectorySize(job.SourceDirectory) - GetDirectorySize(job.TargetDirectory);
-
-                        ///Création de nos log file et state file
-                        string logFile = GetLogFilePath(extension);
-                        string stateFile = GetStateFilePath(extension);
-                        BackupLOG_STATE(logFile, stateFile, job);
-                        break;
-                    case 2:
-                        ///selection de la save pour l'executer par un nom
-                        Console.Write("Enter job name: ");
-                        string jobName = Console.ReadLine();
-                        BackupJob selectedJob = null;
-                        for (int i = 0; i < jobCount; i++)
-                        {
-                            if (jobs[i].Name == jobName)
-                            {
-                                selectedJob = jobs[i];
-                                break;
-                            }
-                        }
-
-                        if (selectedJob == null)
-                        {
-                            Console.WriteLine("Job not found.");
-                            break;
-                        }
-
-                        Console.WriteLine("Running backup job: " + selectedJob.Name);
-                        RunBackupJob(selectedJob);
-                        string logFile1 = GetLogFilePath(extension);
-                        string stateFile1 = GetStateFilePath(extension);
-                        BackupLOG_STATE(logFile1, stateFile1, selectedJob);
-
-                        break;
-                    case 3:
-                        ///execution de toute les saves
-                        Console.WriteLine("Running all backup jobs.");
-                        for (int i = 0; i < jobCount; i++)
-                        {
-                            RunBackupJob(jobs[i]);
-                            string logFile2 = GetLogFilePath(extension);
-                            string stateFile2 = GetStateFilePath(extension);
-                            BackupLOG_STATE(logFile2, stateFile2, jobs[i]);
-
-
-                        }
-
-                        break;
-
-                    case 4:
-                        ///affichage de toute les saves
-                        Console.WriteLine("All Backup Jobs:");
-                        for (int i = 0; i < jobCount; i++)
-                        {
-                            Console.WriteLine("Name: " + jobs[i].Name);
-                            Console.WriteLine("Source Directory: " + jobs[i].SourceDirectory);
-                            Console.WriteLine("Target Directory: " + jobs[i].TargetDirectory);
-                            Console.WriteLine("Type: " + jobs[i].Type);
-                            Console.WriteLine("state: " + jobs[i].state);
-                            Console.WriteLine();
-                        }
-                        break;                  
-
-                    case 5:
-                        string filePath = @"D:\Documents\CESI A3 2022-2023\Projet Programmation SI\Translate\fr\menu.txt";
-                        StreamReader readerfr = new StreamReader(filePath);
-                        string fileContent = readerfr.ReadToEnd();
-                        Console.WriteLine(fileContent);
-                        string choix_eng = Console.ReadLine();
-                        switch (choix_eng)
-                        {
-                            case 1:
-                                if (jobCount == 5)
-                                {
-                                    Console.WriteLine("Tu as atteins le nombre maximum de sauvegarde !");
-                                    break;
-                                }
-                                Console.WriteLine(File.ReadLines(@"D:\Documents\CESI A3 2022-2023\Projet Programmation SI\Translate\fr\sauvegarde.txt").Skip(0).Take(1).First());
-                                ///definition de tout nos parametres pour la save
-                                BackupJob jobfr = new BackupJob();
-                                Console.Write(File.ReadLines(@"D:\Documents\CESI A3 2022-2023\Projet Programmation SI\Translate\fr\sauvegarde.txt").Skip(1).Take(1).First());
-                                jobfr.Name = Console.ReadLine();
-                                Console.Write(File.ReadLines(@"D:\Documents\CESI A3 2022-2023\Projet Programmation SI\Translate\fr\sauvegarde.txt").Skip(2).Take(1).First());
-                                jobfr.SourceDirectory = Console.ReadLine();
-                                Console.Write(File.ReadLines(@"D:\Documents\CESI A3 2022-2023\Projet Programmation SI\Translate\fr\sauvegarde.txt").Skip(3).Take(1).First());
-                                jobfr.TargetDirectory = Console.ReadLine();
-                                Console.Write(File.ReadLines(@"D:\Documents\CESI A3 2022-2023\Projet Programmation SI\Translate\fr\sauvegarde.txt").Skip(4).Take(1).First());
-                                jobfr.Type = Console.ReadLine();
-                                jobs[jobCount++] = jobfr;
-                                Console.WriteLine("La sauvegarde a été crée");
-                                jobfr.size = GetDirectorySize(jobfr.SourceDirectory);
-                                jobfr.state = "not active";
-
-                                jobfr.fileCount = Directory.GetFiles(jobfr.SourceDirectory).Length;
-                                jobfr.filetodo = (Directory.GetFiles(jobfr.SourceDirectory).Length) - (Directory.GetFiles(job.TargetDirectory).Length);
-                                jobfr.sizetodo = GetDirectorySize(jobfr.SourceDirectory) - GetDirectorySize(job.TargetDirectory);
-
-                                ///Création de nos log file et state file
-                                string logFilefr = GetLogFilePath(extension);
-                                string stateFilefr = GetStateFilePath(extension);
-                                BackupLOG_STATE(logFilefr, stateFilefr, job);
-                                break;
-
-                            case 2:
-                                ///selection de la save pour l'executer par un nom
-                                Console.Write("Entrez le nom du travail de sauvegarde ");
-                                string jobfrName = Console.ReadLine();
-                                BackupJob selectedJobfr = null;
-                                for (int i = 0; i < jobCount; i++)
-                                {
-                                    if (jobs[i].Name == jobfrName)
-                                    {
-                                        selectedJobfr = jobs[i];
-                                        break;
-                                    }
-                                }
-
-                                if (selectedJobfr == null)
-                                {
-                                    Console.WriteLine("Travail non trouvé");
-                                    break;
-                                }
-
-                                Console.WriteLine("Backup en cours" + selectedJobfr.Name);
-                                RunBackupJob(selectedJobfr);
-                                string logFile1fr = GetLogFilePath(extension);
-                                string stateFile1fr = GetStateFilePath(extension);
-                                BackupLOG_STATE(logFile1fr, stateFile1fr, selectedJobfr);
-
-                                break;
-
-                            case 3:
-                                ///execution de toute les saves
-                                Console.WriteLine("Execution de toutes les sauvegardes.");
-                                for (int i = 0; i < jobCount; i++)
-                                {
-                                    RunBackupJob(jobs[i]);
-                                    string logFile2 = GetLogFilePath(extension);
-                                    string stateFile2 = GetStateFilePath(extension);
-                                    BackupLOG_STATE(logFile2, stateFile2, jobs[i]);
-
-
-                                }
-
-                                break;
-
-                            case 4:
-                                ///affichage de toute les saves
-                                Console.WriteLine("Liste des travaux programmés");
-                                for (int i = 0; i < jobCount; i++)
-                                {
-                                    Console.WriteLine("Nom " + jobs[i].Name);
-                                    Console.WriteLine("Dossier source: " + jobs[i].SourceDirectory);
-                                    Console.WriteLine("Dossier cible: " + jobs[i].TargetDirectory);
-                                    Console.WriteLine("Type: " + jobs[i].Type);
-                                    Console.WriteLine("Etat: " + jobs[i].state);
-                                    Console.WriteLine();
-                                }
-                                break;
-                            case 5:
-                                break;
-                            default:
-                                Console.WriteLine("Choix invalide.");
-                                break;
-                        }
-                        break;
+                 int choice = int.Parse(Console.ReadLine());
+                    
+                    
                     
 
-                    case 6:
-                        Environment.Exit(0);
+                    switch (choice)
+                    {
+                    ///Maximum de 5 save
+                        case 1:
+                            if (jobCount == 5)
+                            {
+                                Console.WriteLine("Maximum number of jobs reached.");
+                                break;
+                            }
+
+                            
+                            ///definition de tout nos parametres pour la save
+                            BackupJob job = new BackupJob();
+                            Console.WriteLine(File.ReadLines(@"save"+langue+".txt").Skip(0).Take(1).First());
+                            job.Name = Console.ReadLine();
+                            
+                            Console.WriteLine(File.ReadLines(@"save" + langue + ".txt").Skip(1).Take(1).First());
+                            job.SourceDirectory = Console.ReadLine();
+                            
+                            Console.WriteLine(File.ReadLines(@"save"+langue+".txt").Skip(2).Take(1).First());
+                            job.TargetDirectory = Console.ReadLine();
+                            
+                            Console.WriteLine(File.ReadLines(@"save"+langue+".txt").Skip(3).Take(1).First());
+                            job.Type = Console.ReadLine();
+                            
+                            jobs[jobCount++] = job;
+
+                            Console.WriteLine(File.ReadLines(@"save" + langue + ".txt").Skip(4).Take(1).First());
+                            job.size = GetDirectorySize(job.SourceDirectory);
+                            
+                            job.state = "not active";
+
+                            job.fileCount = Directory.GetFiles(job.SourceDirectory).Length;
+                            job.filetodo = (Directory.GetFiles(job.SourceDirectory).Length) - (Directory.GetFiles(job.TargetDirectory).Length);
+                            job.sizetodo = GetDirectorySize(job.SourceDirectory) - GetDirectorySize(job.TargetDirectory);
+                        
+                        ///Création de nos log file et state file
+                            string logFile = GetLogFilePath(extension);
+                            string stateFile = GetStateFilePath(extension);
+                            BackupLOG_STATE(logFile,stateFile,job);
                         break;
+
+                        case 2:
+                        ///selection de la save pour l'executer par un nom
+                            Console.WriteLine(File.ReadLines(@"save" + langue + ".txt").Skip(5).Take(1).First());
+                            string jobName = Console.ReadLine();
+                            BackupJob selectedJob = null;
+                            for (int i = 0; i < jobCount; i++)
+                            {
+                                if (jobs[i].Name == jobName)
+                                {
+                                    selectedJob = jobs[i];
+                                    break;
+                                }
+                            }
+
+                            if (selectedJob == null)
+                            {
+                                Console.WriteLine(File.ReadLines(@"save" + langue + ".txt").Skip(6).Take(1).First());
+                                break;
+                            }
+                            Console.WriteLine((File.ReadLines(@"save" + langue + ".txt").Skip(7).Take(1).First())+ selectedJob.Name);
+                            RunBackupJob(selectedJob,langue);
+                            string logFile1 = GetLogFilePath(extension);
+                            string stateFile1 = GetStateFilePath(extension);
+                            BackupLOG_STATE(logFile1, stateFile1, selectedJob);
+
+                        break;
+                        case 3:
+                        ///execution de toute les saves
+                            Console.WriteLine(File.ReadLines(@"save" + langue + ".txt").Skip(8).Take(1).First());
+                            for (int i = 0; i < jobCount; i++)
+                            {
+                                RunBackupJob(jobs[i],langue);
+                                string logFile2 = GetLogFilePath(extension);
+                                string stateFile2 = GetStateFilePath(extension);
+                                BackupLOG_STATE(logFile2, stateFile2, jobs[i]);
+
+
+                        }
+
+                        break;
+
+                        case 4:
+                        ///affichage de toute les saves
+                            Console.WriteLine(File.ReadLines(@"save" + langue + ".txt").Skip(9).Take(1).First());
+
+                            for (int i = 0; i < jobCount; i++)
+                            {
+                                Console.WriteLine((File.ReadLines(@"save" + langue + ".txt").Skip(10).Take(1).First())+ jobs[i].Name);
+                                Console.WriteLine((File.ReadLines(@"save" + langue + ".txt").Skip(11).Take(1).First()) + jobs[i].SourceDirectory);
+                                Console.WriteLine((File.ReadLines(@"save" + langue + ".txt").Skip(12).Take(1).First()) + jobs[i].TargetDirectory);
+                                Console.WriteLine((File.ReadLines(@"save" + langue + ".txt").Skip(13).Take(1).First()) + jobs[i].Type);
+                                Console.WriteLine((File.ReadLines(@"save" + langue + ".txt").Skip(14).Take(1).First()) + jobs[i].state);
+                                Console.WriteLine();
+                            }
+                            break;
+                   
+                    case 5:
+                        ///choix du type JSON ou XML
+                        Console.WriteLine(File.ReadLines(@"save" + langue + ".txt").Skip(15).Take(1).First());
+                        extension = Console.ReadLine();
+                        break;
+
+                    case 6 :
+                        ///choix de la langue
+                        langue = "FR";
+                        break;
+
+                    case 7:
+                            Environment.Exit(0);
+                            break;
+
+
+
+
+
                     default:
-                        Console.WriteLine("Invalid choice.");
-                        break;
+                            Console.WriteLine(File.ReadLines(@"save" + langue + ".txt").Skip(16).Take(1).First());
+                            break;
+                        
+                        
+
+                    }
+               
                 }
+
             }
 
+            public static void BackupLOG_STATE(string logFile,string stateFile,BackupJob job)
+            {
+                
+                // Information minimales attendues
+                string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                int transferTime = -1;
+
+                try
+                {
+                    // Mesurer le temps de transfert
+                    var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+                    stopwatch.Stop();
+                    transferTime = (int)stopwatch.ElapsedMilliseconds;
+                }
+                catch (Exception ex)
+                {
+                    transferTime = -1;
+                    Console.WriteLine("Erreur lors de la sauvegarde : " + ex.Message);
+                }
+
+                // Écrire les informations dans le fichier log
+                using (StreamWriter writer = new StreamWriter(logFile, true))
+                {
+                    writer.WriteLine("{0},{1},{2},{3},{4},{5}",timestamp, "Name :"+ job.Name, "Source Path :" + job.SourceDirectory , "Destination Path :" + job.TargetDirectory ,"Size :"+ job.size +"octet(s)", "Transfer Time :" + transferTime);
+                }
+
+                
+
+                using (StreamWriter writer = new StreamWriter(stateFile, true))
+                {
+                    writer.WriteLine("{0},{1},{2},{3},{4},{5},{6},{7}", timestamp, "Name :" + job.Name, "Source Path :" + job.SourceDirectory, "Destination Path :" + job.TargetDirectory, "NumberofFiles :" + job.fileCount,"TotalFileSize :"+ job.size, "FileToDo :" + job.filetodo,"SizeOfFileLeftToDo :"+ job.sizetodo);
+                }
         }
 
-        public static void BackupLOG_STATE(string logFile, string stateFile, BackupJob job)
-        {
 
-            // Information minimales attendues
-            string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-            int transferTime = -1;
-
-            try
+            public static string GetLogFilePath(string extension)
             {
-                // Mesurer le temps de transfert
-                var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                stopwatch.Stop();
-                transferTime = (int)stopwatch.ElapsedMilliseconds;
+                string logDirectory = Path.Combine(Environment.CurrentDirectory, "logs");
+                if (!Directory.Exists(logDirectory))
+                {
+                    Directory.CreateDirectory(logDirectory);
+                }
+
+                string logFileName = DateTime.Now.ToString("yyyy-MM-dd") + "."+extension;
+                return Path.Combine(logDirectory, logFileName);
             }
-            catch (Exception ex)
-            {
-                transferTime = -1;
-                Console.WriteLine("Erreur lors de la sauvegarde : " + ex.Message);
-            }
-
-            // Écrire les informations dans le fichier log
-            using (StreamWriter writer = new StreamWriter(logFile, true))
-            {
-                writer.WriteLine("{0},{1},{2},{3},{4},{5}", timestamp, "Name :" + job.Name, "Source Path :" + job.SourceDirectory, "Destination Path :" + job.TargetDirectory, "Size :" + job.size + "octet(s)", "Transfer Time :" + transferTime);
-            }
-
-
-
-            using (StreamWriter writer = new StreamWriter(stateFile, true))
-            {
-                writer.WriteLine("{0},{1},{2},{3},{4},{5},{6},{7}", timestamp, "Name :" + job.Name, "Source Path :" + job.SourceDirectory, "Destination Path :" + job.TargetDirectory, "NumberofFiles :" + job.fileCount, "TotalFileSize :" + job.size, "FileToDo :" + job.filetodo, "SizeOfFileLeftToDo :" + job.sizetodo);
-            }
-        }
-
-
-        public static string GetLogFilePath(string extension)
-        {
-            string logDirectory = Path.Combine(Environment.CurrentDirectory, "logs");
-            if (!Directory.Exists(logDirectory))
-            {
-                Directory.CreateDirectory(logDirectory);
-            }
-
-            string logFileName = DateTime.Now.ToString("yyyy-MM-dd") + "." + extension;
-            return Path.Combine(logDirectory, logFileName);
-        }
 
         public static string GetStateFilePath(string extension)
         {
@@ -297,70 +218,70 @@ namespace BackupSoftware
                 Directory.CreateDirectory(stateDirectory);
             }
 
-            string stateFileName = DateTime.Now.ToString("yyyy-MM-dd") + "." + extension;
+            string stateFileName = DateTime.Now.ToString("yyyy-MM-dd") + "."+extension;
             return Path.Combine(stateDirectory, stateFileName);
         }
 
 
 
 
-        private static void RunBackupJob(BackupJob job)
-        {
-            Console.WriteLine("Running backup job: " + job.Name);
-            Console.WriteLine("Source: " + job.SourceDirectory);
-            Console.WriteLine("Destination: " + job.TargetDirectory);
-            job.state = "active";
-
-
-
-            // Code to run the backup job
-            try
+        private static void RunBackupJob(BackupJob job,string langue)
             {
-                DirectoryInfo source = new DirectoryInfo(job.SourceDirectory);
-                DirectoryInfo destination = new DirectoryInfo(job.TargetDirectory);
+                Console.WriteLine((File.ReadLines(@"save" + langue + ".txt").Skip(10).Take(1).First())+ job.Name);
+                Console.WriteLine((File.ReadLines(@"save" + langue + ".txt").Skip(11).Take(1).First()) + job.SourceDirectory);
+                Console.WriteLine((File.ReadLines(@"save" + langue + ".txt").Skip(12).Take(1).First()) + job.TargetDirectory);
+                job.state = "active";
 
-                // Check if the source directory exists
-                if (!source.Exists)
+                
+
+                // Code to run the backup job
+                try
                 {
-                    Console.WriteLine("Source directory does not exist: " + job.SourceDirectory);
-                    return;
+                    DirectoryInfo source = new DirectoryInfo(job.SourceDirectory);
+                    DirectoryInfo destination = new DirectoryInfo(job.TargetDirectory);
+
+                    // Check if the source directory exists
+                    if (!source.Exists)
+                    {
+                        Console.WriteLine((File.ReadLines(@"save" + langue + ".txt").Skip(17).Take(1).First()) + job.SourceDirectory);
+                        return;
+                    }
+
+                    // Check if the destination directory exists
+                    if (!destination.Exists)
+                    {
+                        Console.WriteLine((File.ReadLines(@"save" + langue + ".txt").Skip(18).Take(1).First()) + job.TargetDirectory);
+                        return;
+                    }
+
+                    // Get the files to backup
+                    FileInfo[] files = source.GetFiles();
+
+                    // Log the number of files eligible for backup
+                    Console.WriteLine((File.ReadLines(@"save" + langue + ".txt").Skip(19).Take(1).First()) + files.Length);
+
+                    // Backup each file
+                    foreach (FileInfo file in files)
+                    {
+                        // Log the start of the backup
+                        Console.WriteLine((File.ReadLines(@"save" + langue + ".txt").Skip(20).Take(1).First()) + file.FullName);
+
+                        // Calculate the backup start time
+                        Stopwatch stopwatch = Stopwatch.StartNew();
+
+                        // Copy the file to the destination directory
+                        file.CopyTo(Path.Combine(destination.FullName, file.Name), true);
+
+                        // Log the end of the backup
+                        stopwatch.Stop();
+                        Console.WriteLine((File.ReadLines(@"save" + langue + ".txt").Skip(21).Take(1).First()) + stopwatch.ElapsedMilliseconds + "ms");
+                    }
                 }
-
-                // Check if the destination directory exists
-                if (!destination.Exists)
+                catch (Exception ex)
                 {
-                    Console.WriteLine("Destination directory does not exist: " + job.TargetDirectory);
-                    return;
-                }
-
-                // Get the files to backup
-                FileInfo[] files = source.GetFiles();
-
-                // Log the number of files eligible for backup
-                Console.WriteLine("Number of eligible files: " + files.Length);
-
-                // Backup each file
-                foreach (FileInfo file in files)
-                {
-                    // Log the start of the backup
-                    Console.WriteLine("Backing up file: " + file.FullName);
-
-                    // Calculate the backup start time
-                    Stopwatch stopwatch = Stopwatch.StartNew();
-
-                    // Copy the file to the destination directory
-                    file.CopyTo(Path.Combine(destination.FullName, file.Name), true);
-
-                    // Log the end of the backup
-                    stopwatch.Stop();
-                    Console.WriteLine("Backup complete in: " + stopwatch.ElapsedMilliseconds + "ms");
+                    Console.WriteLine((File.ReadLines(@"save" + langue + ".txt").Skip(22).Take(1).First()) + ex.Message);
                 }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error while running backup job: " + ex.Message);
-            }
-        }
 
         public static long GetDirectorySize(string folderPath)
         {
@@ -385,18 +306,18 @@ namespace BackupSoftware
         }
 
     }
-}
+    }
 
-class BackupJob
-{
-    public string Name { get; set; }
-    public string SourceDirectory { get; set; }
-    public string TargetDirectory { get; set; }
-    public string Type { get; set; }
-    public long size { get; set; }
-    public string state { get; set; }
-    public int filetodo { get; set; }
-    public long sizetodo { get; set; }
-    public int fileCount { get; set; }
+        class BackupJob
+        {
+            public string Name { get; set; }
+            public string SourceDirectory { get; set; }
+            public string TargetDirectory { get; set; }
+            public string Type { get; set; }
+            public long size { get; set; }
+            public string state { get; set; }
+            public int filetodo { get; set; }
+            public long sizetodo { get; set; }
+            public int fileCount { get; set; }
 }
 
