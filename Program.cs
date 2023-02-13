@@ -11,6 +11,8 @@
 
             public static void Main(string[] args)
             {
+                ///On définit le type JSON par défault pour les fichiers LOG et State
+                string extension = "json";
                 string langue = "EN";
                 BackupJob[] jobs = new BackupJob[5];
                 int jobCount = 0;
@@ -19,9 +21,6 @@
 
                 while (true)
                 {
-                 ///On définit le type JSON par défault pour les fichiers LOG et State
-                 string extension = "json";
-
                 ///Affichage du menu.txt pour le Choix Fonctionnalitées
                 string filePath = @"menu" + langue + ".txt";
                 StreamReader readerfr = new StreamReader(filePath);
