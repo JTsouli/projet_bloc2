@@ -1,0 +1,9 @@
+﻿1. Créer une sauvegarde
+2. Lancer une sauvegarde
+3. Lancer toute les sauvegardes
+4. Afficher toute les sauvegardes
+5. Changer le type des fichiers Log et State
+6. Changer la langue (Anglais/Francais) !!! on ne peut pas rebasculer !!!
+6. Quitter
+
+Entrez votre choix :

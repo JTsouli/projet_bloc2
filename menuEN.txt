@@ -1,0 +1,8 @@
+﻿1. Create Backup Job
+2. Run Backup Job
+3. Run All Backup Jobs
+4. Show All Backup Jobs
+5. Change log and state file type
+6. Change the language (English/French) !!! we can't go back!!!
+7. Exit
+Enter your choice:

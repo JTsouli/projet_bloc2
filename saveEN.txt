@@ -1,0 +1,23 @@
+Enter a name for the backup:
+Enter a source folder:
+Enter a destination folder:
+Enter backup type (full/differential):
+The backup is saved!
+Enter the name of the backup to run:
+Backup not found!
+Executing the backup:
+Executing all saved backups!
+All backups:
+Name :
+Source Folder:
+Target Folder:
+Type :
+State :
+Do you want to change the type of LOG and STATE files to XML format by entering < xml >:
+Invalid choice
+This source folder does not exist:
+This Target folder does not exist:
+The number of eligible files is:
+Backup file:
+The backup is completed in:
+An error occurred while starting the backup:

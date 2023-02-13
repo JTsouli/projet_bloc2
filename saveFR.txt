@@ -1,0 +1,23 @@
+Entrez un nom pour la sauvegarde :
+Entrez un dossier source :
+Entrez un dossier de destination :
+Entrez le type de sauvegarde (full/differential):
+La sauvegarde est enregistrée !
+Entrez le nom de la sauvegarde à executer :
+Sauvegarde introuvable !
+Execution de la sauvegarde :
+Execution de toute les sauvegardes enregistrées !
+Toute les sauvegardes :
+Nom :
+Dossier Source :
+Dossier Cible :
+Type :
+Etat :
+Voulez vous changer le type des fichiers LOG et STATE au format XML en entrant < xml > :
+Choix invalide
+Ce dossier source n'existe pas :
+Ce dossier Cible n'existe pas :
+Le nombre de fichier éligible est :
+Sauvegarde du fichier :
+La sauvegarde c'est terminé en :
+Une erreur est survenue lors du lancement de la sauvegarde :
