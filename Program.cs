@@ -127,9 +127,9 @@ namespace BackupSoftware
                         break;                  
 
                     case 5:
-                        filePath = @"D:\Documents\CESI A3 2022-2023\Projet Programmation SI\Translate\fr\menu.txt";
+                        string filePath = @"D:\Documents\CESI A3 2022-2023\Projet Programmation SI\Translate\fr\menu.txt";
                         StreamReader readerfr = new StreamReader(filePath);
-                        fileContent = readerfr.ReadToEnd();
+                        string fileContent = readerfr.ReadToEnd();
                         Console.WriteLine(fileContent);
                         string choix_eng = Console.ReadLine();
                         switch (choix_eng)
