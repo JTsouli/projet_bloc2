@@ -1,4 +1,4 @@
-# projet_bloc2
+# Projet_bloc2
 
 Les diagrammes sont dispo dans le pdf livrable 1
 il faut Installer la bibliothèque Newtonsoft.json
